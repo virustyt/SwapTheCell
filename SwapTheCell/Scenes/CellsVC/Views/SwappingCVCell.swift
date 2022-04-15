@@ -39,7 +39,6 @@ class SwappingCVCell: UICollectionViewCell {
     // MARK: - inits
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        backgroundColor = .blue
         backgroundColor = .clear.withAlphaComponent(0)
          
         setUpConstrainst()
@@ -54,6 +53,11 @@ class SwappingCVCell: UICollectionViewCell {
     // MARK: - public funcs
     func setupCell(from person: Person) {
         titleLabel.text = person.name
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        titleLabel.text = nil
     }
     
     override func layoutSubviews() {

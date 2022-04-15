@@ -9,4 +9,5 @@ import Foundation
 
 struct Person: Hashable {
     var name: String
+    var id = UUID()
 }
