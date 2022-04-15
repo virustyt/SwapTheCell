@@ -93,7 +93,7 @@ class CellsViewController: UIViewController {
             backgroundGradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             backgroundGradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
