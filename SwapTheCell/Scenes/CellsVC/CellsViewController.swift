@@ -9,6 +9,10 @@ import UIKit
 
 fileprivate extension Consts {
     static let minLinearSpacing: CGFloat = 10
+    
+    static let shadowOffset: CGSize = CGSize(width: -5.0, height: 0.0)
+    static let shadowRadius: CGFloat = 5.0
+    static let shadowOpacity: Float = 0.4
 }
 
 class CellsViewController: UIViewController {
@@ -62,11 +66,15 @@ class CellsViewController: UIViewController {
         setupSquadWithTestValues()
         setupConstraints()
         setUpNavigationItem()
-        applySnapshot(for: Squad.shared.team)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applyDataSourceSnapshot(from: Squad.shared.team)
     }
     
     // MARK: - private funcs
-    private func applySnapshot(for newPhotos: [Person], animatingDifferences: Bool = true) {
+    private func applyDataSourceSnapshot(from newPhotos: [Person], animatingDifferences: Bool = true) {
         var snapshot = Snapshot()
         snapshot.appendSections([.mainTeam])
         snapshot.appendItems(newPhotos)
@@ -78,7 +86,7 @@ class CellsViewController: UIViewController {
         Squad.shared.team.append(Person(name: "Katty"))
         Squad.shared.team.append(Person(name: "Bob"))
         Squad.shared.team.append(Person(name: "Jinny"))
-        Squad.shared.team.append(Person(name: "Markus"))
+        Squad.shared.team.append(Person(name: "Hubert Blaine Wolfeschlegelsteinhausenbergerdorff Sr."))
     }
     
     private func setupConstraints() {
@@ -118,61 +126,55 @@ class CellsViewController: UIViewController {
             newSquad.team.append(randomPerson)
         }
         Squad.shared.team = newSquad.team
-        applySnapshot(for: Squad.shared.team)
+        applyDataSourceSnapshot(from: Squad.shared.team)
     }
     
     @objc private func longPressGestureRecognized(sender: Any) {
         guard let longPress = sender as? UILongPressGestureRecognizer
         else { return }
         
-        let state = longPress.state;
-        let location: CGPoint = longPress.location(in: collectionView)
-        let destinationIndexPath = collectionView.indexPathForItem(at: location)
+        let gestureState = longPress.state;
+        let gestureLocation: CGPoint = longPress.location(in: collectionView)
+        let destinationIndexPath = collectionView.indexPathForItem(at: gestureLocation)
         
-        switch state {
+        switch gestureState {
         case .began:
             if destinationIndexPath != nil {
                 sourceIndexPath = destinationIndexPath
                 
-                guard let cell = collectionView.cellForItem(at: destinationIndexPath!) as? SwappingCVCell
+                guard let sourceCell = collectionView.cellForItem(at: sourceIndexPath!) as? SwappingCVCell
                 else { return }
                 
-                // Take a snapshot of the selected item
-                snapshot = customSnapshoFromView(inputView: cell)
+                // Make a view - snapshot of the selected item.
+                snapshot = makeSnapshotView(from: sourceCell)
                 
-                // Add the snapshot as subview, centered at cell's center
-                var center: CGPoint = cell.center
-                snapshot.center = center
+                // Add the snapshot as subview, centered at cell's center.
+                let sourceCellCenter = sourceCell.center
+                snapshot.center = sourceCellCenter
                 snapshot.alpha = 0.0
                 collectionView.addSubview(snapshot)
                 
                 UIView.animate(withDuration: 0.25, delay: 0, options: [], animations: { [self] in
-                    center.y = location.y
-                    self.snapshot.center = center
+                    self.snapshot.center = sourceCellCenter
                     self.snapshot.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
                     snapshot.alpha = 0.98
                     
                     // Fade out.
-                    cell.alpha = 0.0
+                    sourceCell.alpha = 0.0
+                }, completion: {_ in
+                    sourceCell.isHidden = true
                 })
             }
         case .changed:
-            var center:CGPoint = snapshot.center
-            center.y = location.y
-            snapshot.center = center
+            snapshot.center.y = gestureLocation.y
             
-            // Is destination valid and is it different from source?
+            // Is destination valid and is it different from source.
             if destinationIndexPath != nil && sourceIndexPath != destinationIndexPath {
                 // Update data source.
                 Squad.shared.team.swapAt(destinationIndexPath!.item, sourceIndexPath!.item)
 
-                guard let cell = collectionView.cellForItem(at: sourceIndexPath!) as? SwappingCVCell
-                else { return }
-                
-                cell.isHidden = true
-                
                 // Move the rows.
-                applySnapshot(for: Squad.shared.team)
+                applyDataSourceSnapshot(from: Squad.shared.team)
 
                 // Update sourceIndexPath so it is in sync with UI changes.
                 sourceIndexPath = destinationIndexPath
@@ -181,7 +183,9 @@ class CellsViewController: UIViewController {
             // Clean up.
             if sourceIndexPath != nil,
             let cell = collectionView.cellForItem(at: sourceIndexPath!) {
+                cell.alpha = 0.0
                 cell.isHidden = false
+                
                 UIView.animate(withDuration: 0.25, delay: 0, options: [], animations: {
                     self.snapshot.center = cell.center
                     self.snapshot.transform = .identity
@@ -192,13 +196,12 @@ class CellsViewController: UIViewController {
                 }, completion: {_ in
                     self.sourceIndexPath = nil;
                     self.snapshot.removeFromSuperview()
-                    
                 })
             }
         }
     }
     
-    private func customSnapshoFromView(inputView: UIView) -> UIView {
+    private func makeSnapshotView(from inputView: UIView) -> UIView {
         // Make an image from the input view.
         UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0);
         
@@ -206,18 +209,18 @@ class CellsViewController: UIViewController {
         else { return UIView() }
         
         inputView.layer.render(in: currentContext)
-        let image = UIGraphicsGetImageFromCurrentImageContext();
+        let inputViewsImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         
         // Create an image view.
-        let snapshot = UIImageView(image: image)
-        snapshot.layer.masksToBounds = false;
-        snapshot.layer.cornerRadius = 0.0;
-        snapshot.layer.shadowOffset = CGSize(width: -5.0, height: 0.0)
-        snapshot.layer.shadowRadius = 5.0;
-        snapshot.layer.shadowOpacity = 0.4;
+        let viewSnapshot = UIImageView(image: inputViewsImage)
+        viewSnapshot.layer.masksToBounds = false;
+        viewSnapshot.layer.cornerRadius = inputView.layer.cornerRadius
+        viewSnapshot.layer.shadowOffset = Consts.shadowOffset
+        viewSnapshot.layer.shadowRadius = Consts.shadowRadius
+        viewSnapshot.layer.shadowOpacity = Consts.shadowOpacity
         
-        return snapshot;
+        return viewSnapshot;
     }
 }
 

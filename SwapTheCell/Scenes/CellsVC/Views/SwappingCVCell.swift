@@ -7,17 +7,24 @@
 
 import UIKit
 
-extension Consts {
+fileprivate extension Consts {
     static let titleFontSize: CGFloat = 18
     
-    static let titleLabelTopInset: CGFloat = 10//UIScreen.main.bounds.height / 33.18
-    static let titleLabelBottomInset: CGFloat = 10//UIScreen.main.bounds.height / 33.18
-    static let titleLabelLeadingInset: CGFloat = 10//UIScreen.main.bounds.width / 13.8
-    static let titleLabelTrailingInset: CGFloat = 10//UIScreen.main.bounds.width / 13.8
+    static let titleLabelTopInset: CGFloat = 10
+    static let titleLabelBottomInset: CGFloat = 10
+    static let titleLabelLeadingInset: CGFloat = 10
+    static let titleLabelTrailingInset: CGFloat = 10
     
     static let borderLineWidth: CGFloat = 1.5
     static let cornerRadius: CGFloat = 16
     static let shadowRadius: CGFloat = 163.6
+    static let shadowOffset: CGSize = CGSize(width: 5, height: 5)
+    
+    static let backgroundGradirntStartPoint: CGPoint = CGPoint(x: 0, y: 0.5)
+    static let backgroundGradientEndPoint: CGPoint = CGPoint(x: 1, y: 0.5)
+    
+    static let borderlineGradirntStartPoint: CGPoint = CGPoint(x: 0, y: 0.5)
+    static let borderlineGradientEndPoint: CGPoint = CGPoint(x: 1, y: 0.5)
 }
 
 class SwappingCVCell: UICollectionViewCell {
@@ -75,7 +82,7 @@ class SwappingCVCell: UICollectionViewCell {
 
            titleLabel.translatesAutoresizingMaskIntoConstraints = false
            contentView.translatesAutoresizingMaskIntoConstraints = false
-
+           
            NSLayoutConstraint.activate([
                contentView.topAnchor.constraint(equalTo: topAnchor),
                contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -98,19 +105,19 @@ class SwappingCVCell: UICollectionViewCell {
     private func setUpShadows() {
         layer.cornerRadius = Consts.cornerRadius
         layer.masksToBounds = true
-        layer.shadowOffset = CGSize(width: 5, height: 5)
+        layer.shadowOffset = Consts.shadowOffset
         layer.shadowRadius = Consts.shadowRadius
         layer.shadowColor = UIColor.white.withAlphaComponent(0.05).cgColor
     }
 
     private func setUpGradient() {
-            backgroundGradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-            backgroundGradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
+        backgroundGradientLayer.startPoint = Consts.backgroundGradirntStartPoint
+        backgroundGradientLayer.endPoint = Consts.backgroundGradientEndPoint
             backgroundGradientLayer.colors = [UIColor(red: 1, green: 1, blue: 0.984, alpha: 0.55).cgColor,
                                               UIColor(red: 1, green: 1, blue: 0.984, alpha: 0.15).cgColor]
 
-            borderLineGradient.startPoint = CGPoint(x: 0, y: 0.5)
-            borderLineGradient.endPoint = CGPoint(x: 1, y: 0.5)
+        borderLineGradient.startPoint = Consts.borderlineGradirntStartPoint
+        borderLineGradient.endPoint = Consts.borderlineGradientEndPoint
             borderLineGradient.colors = [UIColor(red: 1, green: 1, blue: 0.984, alpha: 0.4).cgColor,
                                          UIColor(red: 1, green: 1, blue: 0.984, alpha: 0.15).cgColor]
             borderLineMaskLayer.lineWidth = Consts.borderLineWidth
