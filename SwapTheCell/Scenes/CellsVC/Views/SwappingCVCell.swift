@@ -81,15 +81,13 @@ class SwappingCVCell: UICollectionViewCell {
            contentView.addSubview(titleLabel)
 
            titleLabel.translatesAutoresizingMaskIntoConstraints = false
-           contentView.translatesAutoresizingMaskIntoConstraints = false
+//           contentView.translatesAutoresizingMaskIntoConstraints = false
            
            NSLayoutConstraint.activate([
-               contentView.topAnchor.constraint(equalTo: topAnchor),
-               contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-               contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-               contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-               
-               widthAnchor.constraint(equalToConstant: Consts.cellVCItemWidth),
+//               contentView.topAnchor.constraint(equalTo: topAnchor),
+//               contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+//               contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+//               contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
 
                titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor,
                                                constant: Consts.titleLabelTopInset),
@@ -101,6 +99,14 @@ class SwappingCVCell: UICollectionViewCell {
                                                            constant: -Consts.titleLabelTrailingInset)
            ])
        }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+            let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+            layoutAttributes.frame.size = contentView.systemLayoutSizeFitting(targetSize,
+                                                                              withHorizontalFittingPriority: .required,
+                                                                              verticalFittingPriority: .fittingSizeLevel)
+            return layoutAttributes
+        }
     
     private func setUpShadows() {
         layer.cornerRadius = Consts.cornerRadius

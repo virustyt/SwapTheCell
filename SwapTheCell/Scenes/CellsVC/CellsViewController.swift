@@ -40,14 +40,15 @@ class CellsViewController: UIViewController {
     }()
     
     private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
+        let layout = CellsVCFlowLayout()
         layout.minimumInteritemSpacing = Consts.minInterItemSpacing
         layout.minimumLineSpacing = Consts.minLinearSpacing
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        
+
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.register(SwappingCVCell.self, forCellWithReuseIdentifier: SwappingCVCell.identifyer)
+        collectionView.contentInsetAdjustmentBehavior = .always
         
         collectionView.addGestureRecognizer(longPress)
         
@@ -66,11 +67,20 @@ class CellsViewController: UIViewController {
         setupSquadWithTestValues()
         setupConstraints()
         setUpNavigationItem()
+        applyDataSourceSnapshot(from: Squad.shared.team)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        applyDataSourceSnapshot(from: Squad.shared.team)
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
     }
     
     // MARK: - private funcs
@@ -102,13 +112,13 @@ class CellsViewController: UIViewController {
             backgroundGradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
-    private func setUpNavigationItem(){
+    private func setUpNavigationItem() {
         let shuffleBarButtonItem = UIBarButtonItem(image: UIImage(named: "shuffle"),
                                                    style: .plain,
                                                    target: self,
@@ -169,7 +179,7 @@ class CellsViewController: UIViewController {
             snapshot.center.y = gestureLocation.y
             
             // Is destination valid and is it different from source.
-            if destinationIndexPath != nil && sourceIndexPath != destinationIndexPath {
+            if destinationIndexPath != nil && sourceIndexPath != nil && sourceIndexPath != destinationIndexPath {
                 // Update data source.
                 Squad.shared.team.swapAt(destinationIndexPath!.item, sourceIndexPath!.item)
 
@@ -223,4 +233,3 @@ class CellsViewController: UIViewController {
         return viewSnapshot;
     }
 }
-
