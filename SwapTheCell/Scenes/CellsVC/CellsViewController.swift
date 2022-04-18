@@ -24,8 +24,6 @@ class CellsViewController: UIViewController {
         case mainTeam
     }
     
-    private lazy var backgroundGradientView = UIImageView(image: UIImage(named: "background"))
-    
     private lazy var dataSource: DataSource = {
         let difffableDataSource = DataSource(collectionView: collectionView,
                                              cellProvider: { [weak self] (recievedCollectionView, indexPath, person) -> UICollectionViewCell? in
@@ -38,6 +36,8 @@ class CellsViewController: UIViewController {
         })
         return difffableDataSource
     }()
+    
+    private lazy var backgroundGradientView = UIImageView(image: UIImage(named: "background"))
     
     private lazy var collectionView: UICollectionView = {
         let layout = CellsVCFlowLayout()
@@ -66,28 +66,25 @@ class CellsViewController: UIViewController {
         view.backgroundColor = .white
         setupSquadWithTestValues()
         setupConstraints()
-        setUpNavigationItem()
+        setupNavigationItem()
         applyDataSourceSnapshot(from: Squad.shared.team)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
+        makeNavigationBarTransparent()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-        navigationController?.navigationBar.shadowImage = nil
+        makeNavigationBarOpaque()
     }
     
     // MARK: - private funcs
-    private func applyDataSourceSnapshot(from newPhotos: [Person], animatingDifferences: Bool = true) {
+    private func applyDataSourceSnapshot(from newTeam: [Person], animatingDifferences: Bool = true) {
         var snapshot = Snapshot()
         snapshot.appendSections([.mainTeam])
-        snapshot.appendItems(newPhotos)
+        snapshot.appendItems(newTeam)
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
     }
     
@@ -118,7 +115,7 @@ class CellsViewController: UIViewController {
         ])
     }
     
-    private func setUpNavigationItem() {
+    private func setupNavigationItem() {
         let shuffleBarButtonItem = UIBarButtonItem(image: UIImage(named: "shuffle"),
                                                    style: .plain,
                                                    target: self,
@@ -206,7 +203,9 @@ class CellsViewController: UIViewController {
                 }, completion: {_ in
                     self.sourceIndexPath = nil;
                     self.snapshot.removeFromSuperview()
+                    cell.isHidden = false
                 })
+                
             }
         }
     }
@@ -231,5 +230,16 @@ class CellsViewController: UIViewController {
         viewSnapshot.layer.shadowOpacity = Consts.shadowOpacity
         
         return viewSnapshot;
+    }
+    
+    private func makeNavigationBarOpaque() {
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
+    }
+    
+    private func makeNavigationBarTransparent() {
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
     }
 }
