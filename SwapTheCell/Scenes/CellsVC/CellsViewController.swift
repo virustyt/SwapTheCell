@@ -190,19 +190,13 @@ class CellsViewController: UIViewController {
             // Clean up.
             if sourceIndexPath != nil,
             let cell = collectionView.cellForItem(at: sourceIndexPath!) {
-                cell.alpha = 0.0
-                cell.isHidden = false
-                
                 UIView.animate(withDuration: 0.25, delay: 0, options: [], animations: {
                     self.snapshot.center = cell.center
                     self.snapshot.transform = .identity
-                    self.snapshot.alpha = 0.0
-                    
-                    // Undo fade out.
-                    cell.alpha = 1.0
                 }, completion: {_ in
                     self.sourceIndexPath = nil;
                     self.snapshot.removeFromSuperview()
+                    cell.alpha = 1.0
                     cell.isHidden = false
                 })
                 
